@@ -109,7 +109,11 @@ class Produtos
             throw new InvalidArgumentException('Os dados do produto devem ser informados.');
         }
 
+<<<<<<< HEAD
         if (trim($this->nome) == '') {
+=======
+        if (trim($this->nome) === '') {
+>>>>>>> 6bccbf6ad4090c5afaaf3b18481c372efc75e89e
             throw new InvalidArgumentException('O nome do produto deve ser informado.');
         }
 

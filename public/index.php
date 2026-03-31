@@ -26,7 +26,11 @@ $app->get(
     $altura = $dados['altura'] ?? 0;
     
     // Valida os dados recebidos
+<<<<<<< HEAD
     if ($nome == '' || $peso == 0 || $altura == 0) {
+=======
+    if ($nome === '' || $peso === 0 || $altura === 0) {
+>>>>>>> 6bccbf6ad4090c5afaaf3b18481c372efc75e89e
         $conteudo = "<p class='texto-erro'><strong>Erro:</strong> Informe nome, peso e altura.</p>";
     } else {
         $peso =  $peso;
@@ -99,7 +103,11 @@ $app->get(
     $nota2 = $dados['nota2'] ?? 0;
 
     // Valida os dados recebidos
+<<<<<<< HEAD
     if ($aluno == '' || $nota1 == 0 || $nota2 == 0) {
+=======
+    if ($aluno === '' || $nota1 === 0 || $nota2 === 0) {
+>>>>>>> 6bccbf6ad4090c5afaaf3b18481c372efc75e89e
         $conteudo = "<p class='texto-erro'><strong>Erro:</strong> Informe o nome do aluno e as duas notas.</p>";
     } else {
         $nota1 =  $nota1;
@@ -174,7 +182,11 @@ $app->get(
     $qtdHorasExtras = $dados['qtdHorasExtras'] ?? 0;
 
     // Valida os dados recebidos
+<<<<<<< HEAD
     if ($nome == '' || $valorHora == 0 || $valorHoraExtra == 0 || $qtdHoras == 0 || $qtdHorasExtras == 0) {
+=======
+    if ($nome === '' || $valorHora === 0 || $valorHoraExtra === 0 || $qtdHoras === 0 || $qtdHorasExtras === 0) {
+>>>>>>> 6bccbf6ad4090c5afaaf3b18481c372efc75e89e
         $conteudo = "<p class='texto-erro'><strong>Erro:</strong> Informe todos os dados do funcionario.</p>";
     } else {
         $valorHora =  $valorHora;
@@ -235,6 +247,7 @@ $app->get(
     return $response;
 });
 
+<<<<<<< HEAD
 // Rota principal dos produtos.
 // Ela recebe os 5 produtos do formulario, cria os objetos, calcula o estoque
 // e monta a tela de resultado com o botao para ir para a pagina de remocao.
@@ -370,23 +383,107 @@ $app->get(
                             </div>
                         </div>
                     </div>
+=======
+// Rota para adicionar produtos no estoque
+$app->get(
+    '/produtos/adicionar', 
+    
+    function (Request $request, Response $response) {
+    // Le os dados enviados pelo formulario
+    $dados = $request->getQueryParams();
+
+    $produtos = [];
+
+    $nomes = $dados['nome'] ?? [];
+    $precos = $dados['preco'] ?? [];
+    $adicionar = $dados['adicionar'] ?? [];
+
+    // Percorre os 5 produtos enviados para adicionar ao estoque
+    for ($i = 1; $i <= 5; $i++) {
+        $nome = $nomes[$i] ?? '';
+        $preco = (float) ($precos[$i] ?? 0);
+        $add = (int) ($adicionar[$i] ?? 0);
+
+        if ($nome !== '' && $preco > 0 && $add >= 0) {
+            // Cria um objeto para cada produto
+            $produto = new Produtos();
+            $produto->setNome($nome);
+            $produto->setPreco($preco);
+            $produto->setQuantidadeEstoque(0);
+
+            // Adiciona a quantidade informada de uma vez.
+            $produto->adicionarItens((int) $add);
+
+            $produtos[] = [
+                'nome' => $nome,
+                'preco' => $preco,
+                'adicionou' => $add,
+                'quantidade_final' => $produto->getQuantidadeEstoque()
+            ];
+        }
+    }
+
+    $conteudo = '';
+    $estoqueTotal = 0;
+
+    // Monta os cards de cada produto no resultado
+    foreach ($produtos as $p) {
+        $valorTotal = $p['preco'] * $p['quantidade_final'];
+
+        $conteudo .= "
+            <div class='card mt-4 resultado-card'>
+                <div class='card-header resultado-header'>
+                    {$p['nome']}
+                </div>
+                <div class='card-body'>
+                    <p class='texto-roxo'><strong>Preco unitario:</strong> R$ " . number_format($p['preco'], 2, ',', '.') . "</p>";
+
+        if ($p['adicionou'] > 0) {
+            $conteudo .= "<p class='texto-roxo'><strong>Adicionou ao estoque:</strong> {$p['adicionou']} itens</p>";
+        }
+
+        $estoqueTotal += $valorTotal;
+
+        $conteudo .= "
+                    <hr>
+                    <p class='texto-roxo'><strong>Quantidade final em estoque:</strong> {$p['quantidade_final']}</p>
+                    <p class='texto-lilas'><strong>Valor total em estoque:</strong> R$ " . number_format($valorTotal, 2, ',', '.') . "</p>
+>>>>>>> 6bccbf6ad4090c5afaaf3b18481c372efc75e89e
                 </div>
             </div>";
     }
 
+<<<<<<< HEAD
     // Monta a pagina HTML final do estoque.
+=======
+    // Card final com o valor total do estoque
+    $conteudo .= "
+        <div class='card mt-4 resultado-destaque'>
+            <div class='card-body text-center'>
+                <h4>Valor Total do Estoque Inteiro</h4>
+                <h2>R$ " . number_format($estoqueTotal, 2, ',', '.') . "</h2>
+            </div>
+        </div>";
+
+    // Monta a pagina HTML de resposta
+>>>>>>> 6bccbf6ad4090c5afaaf3b18481c372efc75e89e
     $resposta = "<!DOCTYPE html>
             <html lang='pt-BR'>
             <head>
                 <meta charset='UTF-8'>
                 <link href='https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css' rel='stylesheet'>
                 <link rel='stylesheet' href='/style.css'>
+<<<<<<< HEAD
                 <title>Resultado dos Produtos</title>
+=======
+                <title>Adicionar Produtos</title>
+>>>>>>> 6bccbf6ad4090c5afaaf3b18481c372efc75e89e
             </head>
             <body class='pagina-resultado'>
                 <div class='container py-5'>
                     <div class='row justify-content-center'>
                         <div class='col-md-10'>
+<<<<<<< HEAD
                             <h2 class='mt-4 text-center resultado-titulo'>Controle de Estoque</h2>
                             {$conteudo}
                             <div class='d-grid gap-2 mt-4'>
@@ -396,6 +493,12 @@ $app->get(
                                     <button type='submit' class='btn btn-roxo'>Remover Itens do Estoque</button>
                                 </form>" : '') . "
                                 <a href='/Produtos.html' class='btn btn-voltar'>Voltar</a>
+=======
+                            <h2 class='mt-4 text-center resultado-titulo'>Adicao no Estoque</h2>
+                            {$conteudo}
+                            <div class='text-center mt-3'>
+                                <a href='/ProdutosAdicionar.html' class='btn btn-roxo'>Voltar</a>
+>>>>>>> 6bccbf6ad4090c5afaaf3b18481c372efc75e89e
                             </div>
                         </div>
                     </div>
@@ -407,6 +510,7 @@ $app->get(
     return $response;
 });
 
+<<<<<<< HEAD
 // Rota que abre a segunda tela de produtos.
 // Nela os dados do array ja chegam preenchidos e o usuario digita so
 // a quantidade que deseja remover de cada item.
@@ -415,10 +519,19 @@ $app->get(
 
     function (Request $request, Response $response) {
     // Le os dados recebidos da pagina de estoque.
+=======
+// Rota para remover produtos do estoque
+$app->get(
+    '/produtos/remover', 
+    
+    function (Request $request, Response $response) {
+    // Le os dados enviados pelo formulario
+>>>>>>> 6bccbf6ad4090c5afaaf3b18481c372efc75e89e
     $dados = $request->getQueryParams();
     $nomes = $dados['nome'] ?? [];
     $precos = $dados['preco'] ?? [];
     $estoques = $dados['estoque'] ?? [];
+<<<<<<< HEAD
 
     // Aqui sera montado o formulario ja preenchido para remocao.
     $linhas = '';
@@ -568,10 +681,66 @@ $app->get(
                     <p class='texto-roxo'><strong>Preco unitario:</strong> R$ " . number_format($produto->getPreco(), 2, ',', '.') . "</p>
                     <p class='texto-roxo'><strong>Quantidade em estoque:</strong> {$quantidadeFinal}</p>
                     <p class='texto-lilas'><strong>Valor total em estoque:</strong> R$ " . number_format($valorProduto, 2, ',', '.') . "</p>
+=======
+    $remover = $dados['remover'] ?? [];
+    $produtos = [];
+    $estoqueTotal = 0;
+
+    for ($i = 1; $i <= 5; $i++) {
+        $nome = $nomes[$i] ?? '';
+        $preco = (float) ($precos[$i] ?? 0);
+        $estoqueAtual = (int) ($estoques[$i] ?? 0);
+        $quantidadeRemover = (int) ($remover[$i] ?? 0);
+
+        if ($nome === '' || $preco <= 0 || $estoqueAtual < 0 || $quantidadeRemover < 0) {
+            continue;
+        }
+
+        $produto = new Produtos();
+        $produto->setNome($nome);
+        $produto->setPreco($preco);
+        $produto->setQuantidadeEstoque($estoqueAtual);
+        $quantidadeFinal = $produto->removerItens($quantidadeRemover);
+        $valorTotal = $produto->calcularValorTotal();
+        $estoqueTotal += $valorTotal;
+
+        $produtos[] = [
+            'nome' => $nome,
+            'preco' => $preco,
+            'estoque_atual' => $estoqueAtual,
+            'removeu' => $quantidadeRemover,
+            'quantidade_final' => $quantidadeFinal,
+            'valor_total' => $valorTotal
+        ];
+    }
+
+    $conteudo = '';
+
+    // Monta os cards de cada produto no resultado
+    foreach ($produtos as $p) {
+        $conteudo .= "
+            <div class='card mt-4 resultado-card'>
+                <div class='card-header resultado-header'>
+                    {$p['nome']}
+                </div>
+                <div class='card-body'>
+                    <p class='texto-roxo'><strong>Preco unitario:</strong> R$ " . number_format((float) $p['preco'], 2, ',', '.') . "</p>
+                    <p class='texto-roxo'><strong>Estoque atual:</strong> {$p['estoque_atual']}</p>";
+
+        if ($p['removeu'] > 0) {
+            $conteudo .= "<p class='texto-lilas'><strong>Removeu do estoque:</strong> {$p['removeu']} itens</p>";
+        }
+
+        $conteudo .= "
+                    <hr>
+                    <p class='texto-roxo'><strong>Quantidade final em estoque:</strong> {$p['quantidade_final']}</p>
+                    <p class='texto-lilas'><strong>Valor total em estoque:</strong> R$ " . number_format($p['valor_total'], 2, ',', '.') . "</p>
+>>>>>>> 6bccbf6ad4090c5afaaf3b18481c372efc75e89e
                 </div>
             </div>";
     }
 
+<<<<<<< HEAD
     if ($conteudo == '') {
         $conteudo = "
             <div class='card mt-4 resultado-card'>
@@ -604,13 +773,28 @@ $app->get(
     }
 
     // Monta a pagina HTML final com o resultado da remocao.
+=======
+    $conteudo .= "
+        <div class='card mt-4 resultado-destaque'>
+            <div class='card-body text-center'>
+                <h4>Valor Total do Estoque Restante</h4>
+                <h2>R$ " . number_format($estoqueTotal, 2, ',', '.') . "</h2>
+            </div>
+        </div>";
+
+    // Monta a pagina HTML de resposta
+>>>>>>> 6bccbf6ad4090c5afaaf3b18481c372efc75e89e
     $resposta = "<!DOCTYPE html>
             <html lang='pt-BR'>
             <head>
                 <meta charset='UTF-8'>
                 <link href='https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css' rel='stylesheet'>
                 <link rel='stylesheet' href='/style.css'>
+<<<<<<< HEAD
                 <title>Resultado da Remocao</title>
+=======
+                <title>Remover Produtos</title>
+>>>>>>> 6bccbf6ad4090c5afaaf3b18481c372efc75e89e
             </head>
             <body class='pagina-resultado'>
                 <div class='container py-5'>
@@ -618,8 +802,13 @@ $app->get(
                         <div class='col-md-10'>
                             <h2 class='mt-4 text-center resultado-titulo'>Remocao do Estoque</h2>
                             {$conteudo}
+<<<<<<< HEAD
                             <div class='d-grid gap-2 mt-4'>
                                 <a href='/Produtos.html' class='btn btn-voltar'>Voltar para Produtos</a>
+=======
+                            <div class='text-center mt-3'>
+                                <a href='/ProdutosRemover.html' class='btn btn-roxo'>Voltar</a>
+>>>>>>> 6bccbf6ad4090c5afaaf3b18481c372efc75e89e
                             </div>
                         </div>
                     </div>
@@ -644,7 +833,11 @@ $app->get(
     $ladoC = $dados['ladoC'] ?? 0;
 
     // Valida os dados recebidos
+<<<<<<< HEAD
     if ($ladoA == 0.0 || $ladoB == 0.0 || $ladoC == 0.0) {
+=======
+    if ($ladoA === 0.0 || $ladoB === 0.0 || $ladoC === 0.0) {
+>>>>>>> 6bccbf6ad4090c5afaaf3b18481c372efc75e89e
         $conteudo = "<p class='texto-erro'><strong>Erro:</strong> Informe os tres lados do triangulo.</p>";
     } else {
         if ($ladoA <= 0 || $ladoB <= 0 || $ladoC <= 0) {
