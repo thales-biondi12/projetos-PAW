@@ -1,0 +1,241 @@
+/* Fundo do site */
+body {
+    background-color: #f2f2f2;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+/* Titulos */
+h1,
+h2 {
+    text-align: center;
+    margin-top: 30px;
+}
+
+/* Caixa dos formularios */
+.Notas,
+.pessoa {
+    width: 400px;
+    margin: auto;
+    margin-top: 80px;
+    padding: 30px;
+    background-color: white;
+    border-radius: 10px;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
+}
+
+/* Inputs */
+input {
+    width: 100%;
+    padding: 8px;
+    margin-top: 5px;
+    margin-bottom: 15px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+}
+
+/* Botoes */
+button,
+input[type="submit"] {
+    width: 100%;
+}
+
+/* Links padrao */
+a {
+    display: block;
+    width: 200px;
+    margin: 10px auto;
+    text-align: center;
+    padding: 10px;
+    background-color: #0d6efd;
+    color: white;
+    border-radius: 6px;
+    text-decoration: none;
+}
+
+a:hover {
+    background-color: #0b5ed7;
+}
+
+.card {
+    border-radius: 12px;
+}
+
+.list-group-item {
+    border: none;
+}
+
+/* Pagina inicial */
+.pagina-inicial {
+    background: linear-gradient(135deg, #efe5ff, #d9c2ff);
+}
+
+.home-card {
+    width: 420px;
+    border: none;
+    border-radius: 14px;
+    background-color: #ffffff;
+    box-shadow: 0 8px 18px rgba(87, 35, 160, 0.12);
+}
+
+.home-header {
+    background-color: #6a1fb5;
+    color: white;
+    font-weight: bold;
+    border-radius: 14px 14px 0 0;
+    padding: 14px;
+}
+
+.home-title {
+    margin-top: 0;
+    margin-bottom: 10px;
+    color: #250347;
+    font-size: 28px;
+}
+
+.home-subtitle {
+    color: #6e5a96;
+}
+
+.home-link {
+    width: 100%;
+    margin: 0;
+    padding: 12px;
+    border: 1px solid #cdaef7;
+    color: #5b1899;
+    background-color: #f3e8ff;
+    text-decoration: none;
+    border-radius: 10px;
+    font-weight: 500;
+    margin-bottom: 10px;
+}
+
+.home-link:hover {
+    background-color: #e7d4ff;
+    color: #4d1485;
+}
+
+.home-footer {
+    text-align: center;
+    color: #6e5a96;
+    font-size: 14px;
+}
+
+/* Formularios no padrao roxo */
+.pagina-formulario {
+    background: linear-gradient(135deg, #f3ebff, #e1d0ff);
+}
+
+.form-card {
+    width: 100%;
+    max-width: 420px;
+    border: none;
+    border-radius: 14px;
+    box-shadow: 0 8px 18px rgba(87, 35, 160, 0.12);
+}
+
+.form-card-largo {
+    max-width: 980px;
+}
+
+.form-header {
+    background-color: #6a1fb5;
+    color: white;
+    font-weight: bold;
+    text-align: center;
+    border-radius: 14px 14px 0 0;
+    padding: 14px;
+}
+
+.form-title {
+    color: #4d1485;
+    margin-top: 0;
+}
+
+.form-label {
+    color: #5b1899;
+    font-weight: 600;
+}
+
+.form-control:focus {
+    border-color: #b784f7;
+    box-shadow: 0 0 0 0.2rem rgba(123, 44, 191, 0.15);
+}
+
+.btn-roxo {
+    background-color: #6a1fb5;
+    border-color: #6a1fb5;
+    color: white;
+}
+
+.btn-roxo:hover {
+    background-color: #57158f;
+    border-color: #57158f;
+    color: white;
+}
+
+.btn-voltar {
+    background-color: #f3e8ff;
+    border: 1px solid #cdaef7;
+    color: #5b1899;
+}
+
+.btn-voltar:hover {
+    background-color: #e7d4ff;
+    border-color: #b784f7;
+    color: #4d1485;
+}
+
+.produto-titulo {
+    color: #5b1899;
+    font-weight: 700;
+}
+
+.produto-bloco {
+    padding: 12px;
+    border: 1px solid #eadcff;
+    border-radius: 12px;
+    background-color: #fbf7ff;
+}
+
+/* Resultados */
+.pagina-resultado {
+    background: linear-gradient(135deg, #f3ebff, #e1d0ff);
+}
+
+.resultado-card {
+    border: none;
+    border-radius: 14px;
+    box-shadow: 0 8px 18px rgba(87, 35, 160, 0.12);
+}
+
+.resultado-header {
+    background-color: #6a1fb5;
+    color: white;
+}
+
+.resultado-titulo {
+    color: #4d1485;
+}
+
+.resultado-destaque {
+    background-color: #6a1fb5;
+    color: white;
+    border: none;
+    border-radius: 14px;
+}
+
+.texto-roxo {
+    color: #5b1899;
+}
+
+.texto-lilas {
+    color: #7a5ca5;
+}
+
+.texto-erro {
+    color: #842029;
+    background-color: #f8d7da;
+    border: 1px solid #f1aeb5;
+    border-radius: 10px;
+    padding: 12px;
+}
