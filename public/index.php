@@ -26,11 +26,10 @@ $app->get(
     $altura = $dados['altura'] ?? 0;
     
     // Valida os dados recebidos
-<<<<<<< HEAD
     if ($nome == '' || $peso == 0 || $altura == 0) {
-=======
+
     if ($nome === '' || $peso === 0 || $altura === 0) {
->>>>>>> 6bccbf6ad4090c5afaaf3b18481c372efc75e89e
+
         $conteudo = "<p class='texto-erro'><strong>Erro:</strong> Informe nome, peso e altura.</p>";
     } else {
         $peso =  $peso;
