@@ -1,4 +1,5 @@
 <?php
+// ARQUIVO ALTERADO: fluxo de produtos com remocao sem $_SESSION
 require __DIR__ . '/../vendor/autoload.php';
 
 use Psr\Http\Message\ResponseInterface as Response;
@@ -11,6 +12,50 @@ use src\Pessoa\Pessoa;
 use src\Produtos\Produtos;
 
 $app = AppFactory::create();
+
+function montarVetorProdutos(array $nomes, array $precos, array $estoques): array
+{
+    $produtos = [];
+
+    for ($i = 1; $i <= 5; $i++) {
+        $nome = $nomes[$i] ?? '';
+        $preco = $precos[$i] ?? 0;
+        $estoque = $estoques[$i] ?? 0;
+
+        if ($nome !== '' && $preco > 0 && $estoque >= 0) {
+            $produto = new Produtos();
+            $produto->setNome($nome);
+            $produto->setPreco($preco);
+            $produto->setQtdEstoque($estoque);
+            $produtos[] = $produto;
+        }
+    }
+
+    return $produtos;
+}
+
+function montarCamposOcultosProdutos(array $produtos): string
+{
+    $camposOcultos = '';
+
+    foreach ($produtos as $indice => $produto) {
+        $posicao = $indice + 1;
+        $nome = $produto->getNome();
+        $preco = $produto->getPreco();
+        $qtdEstoque = $produto->getQtdEstoque();
+
+        $camposOcultos .= "
+            <input type='hidden' name='nome[{$posicao}]' value='{$nome}'>
+            <input type='hidden' name='preco[{$posicao}]' value='{$preco}'>
+            <input type='hidden' name='estoque[{$posicao}]' value='{$qtdEstoque}'>";
+    }
+
+    return $camposOcultos;
+}
+
+// =========================
+// BLOCO DE PRODUTOS
+// =========================
 
 // Rota para calcular IMC
 $app->get(
@@ -27,9 +72,6 @@ $app->get(
     
     // Valida os dados recebidos
     if ($nome == '' || $peso == 0 || $altura == 0) {
-
-    if ($nome === '' || $peso === 0 || $altura === 0) {
-
         $conteudo = "<p class='texto-erro'><strong>Erro:</strong> Informe nome, peso e altura.</p>";
     } else {
         $peso =  $peso;
@@ -102,11 +144,7 @@ $app->get(
     $nota2 = $dados['nota2'] ?? 0;
 
     // Valida os dados recebidos
-<<<<<<< HEAD
     if ($aluno == '' || $nota1 == 0 || $nota2 == 0) {
-=======
-    if ($aluno === '' || $nota1 === 0 || $nota2 === 0) {
->>>>>>> 6bccbf6ad4090c5afaaf3b18481c372efc75e89e
         $conteudo = "<p class='texto-erro'><strong>Erro:</strong> Informe o nome do aluno e as duas notas.</p>";
     } else {
         $nota1 =  $nota1;
@@ -181,11 +219,7 @@ $app->get(
     $qtdHorasExtras = $dados['qtdHorasExtras'] ?? 0;
 
     // Valida os dados recebidos
-<<<<<<< HEAD
     if ($nome == '' || $valorHora == 0 || $valorHoraExtra == 0 || $qtdHoras == 0 || $qtdHorasExtras == 0) {
-=======
-    if ($nome === '' || $valorHora === 0 || $valorHoraExtra === 0 || $qtdHoras === 0 || $qtdHorasExtras === 0) {
->>>>>>> 6bccbf6ad4090c5afaaf3b18481c372efc75e89e
         $conteudo = "<p class='texto-erro'><strong>Erro:</strong> Informe todos os dados do funcionario.</p>";
     } else {
         $valorHora =  $valorHora;
@@ -246,144 +280,8 @@ $app->get(
     return $response;
 });
 
-<<<<<<< HEAD
-// Rota principal dos produtos.
-// Ela recebe os 5 produtos do formulario, cria os objetos, calcula o estoque
-// e monta a tela de resultado com o botao para ir para a pagina de remocao.
-$app->get(
-    '/produtos/processar',
-
-    function (Request $request, Response $response) {
-    // Le os dados do formulario principal de produtos.
-    $dados = $request->getQueryParams();
-
-    // Organiza os dados em arrays para processar os 5 produtos.
-    $nomes = $dados['nome'] ?? [];
-    $precos = $dados['preco'] ?? [];
-    $entradas = $dados['entrada'] ?? [];
-    $saidas = $dados['saida'] ?? [];
-
-    // Variaveis usadas para guardar objetos, resultado e totais.
-    $produtos = [];
-    $movimentacoes = [];
-    $conteudo = '';
-    $totalItens = 0;
-    $valorTotalEstoque = 0;
-    $camposRemocao = '';
-    $formularioInvalido = false;
-
-    // Percorre cada linha do formulario para montar os produtos.
-    for ($i = 1; $i <= 5; $i++) {
-        $nome = $nomes[$i] ?? '';
-        $precoOriginal = $precos[$i] ?? '';
-        $entradaOriginal = $entradas[$i] ?? '';
-        $saidaOriginal = $saidas[$i] ?? '';
-        $preco = (float) str_replace(',', '.', str_replace(['R$', ' '], '', trim((string) $precoOriginal)));
-        $quantidadeEntrada = (int) trim((string) $entradaOriginal);
-        $quantidadeSaida = (int) trim((string) $saidaOriginal);
-
-        // Como os 5 produtos sao obrigatorios, nome, preco e entrada precisam ser preenchidos.
-        if (
-            $nome == '' ||
-            $precoOriginal == '' ||
-            $entradaOriginal == '' ||
-            $preco <= 0
-        ) {
-            $formularioInvalido = true;
-            break;
-        }
-
-        // Aqui o objeto Produto e criado.
-        $produto = new Produtos();
-        $produto->setNome($nome);
-        $produto->setPreco($preco);
-
-        // O estoque comeca em zero antes de adicionar a entrada.
-        $produto->setQuantidadeEstoque(0);
-
-        // Soma a quantidade de entrada ao estoque.
-        $produto->adicionarItens($quantidadeEntrada);
-
-        // Remove a quantidade de saida, sem deixar o estoque negativo.
-        $produto->removerItens($quantidadeSaida);
-
-        $produtos[] = $produto;
-        $movimentacoes[] = [
-            'entrada' => $quantidadeEntrada,
-            'saida' => $quantidadeSaida
-        ];
-
-        // Prepara os campos ocultos para abrir a tela de remocao com os dados preenchidos.
-        $camposRemocao .= "
-            <input type='hidden' name='nome[{$i}]' value='{$produto->getNome()}'>
-            <input type='hidden' name='preco[{$i}]' value='{$produto->getPreco()}'>
-            <input type='hidden' name='estoque[{$i}]' value='{$produto->getQuantidadeEstoque()}'>";
-    }
-
-    // Se algum dos 5 produtos estiver errado, mostra uma unica mensagem geral de erro.
-    if ($formularioInvalido || count($produtos) != 5) {
-        $conteudo = "
-            <div class='card mt-4 resultado-card'>
-                <div class='card-header resultado-header'>
-                    Erro no preenchimento
-                </div>
-                <div class='card-body'>
-                    <p class='texto-erro'><strong>Erro:</strong> Os 5 produtos devem ser preenchidos obrigatoriamente com nome, preco e quantidade de entrada validos.</p>
-                </div>
-            </div>";
-    // Se os 5 produtos estiverem corretos, monta os cards e o resumo do estoque.
-    } elseif ($produtos != []) {
-        foreach ($produtos as $indice => $produto) {
-            // Pega a quantidade final que sobrou no estoque.
-            $quantidadeFinal = $produto->getQuantidadeEstoque();
-
-            // Calcula o valor total desse produto no estoque.
-            $valorProduto = $produto->calcularValorTotal();
-            $entrada = $movimentacoes[$indice]['entrada'];
-            $saida = $movimentacoes[$indice]['saida'];
-
-            // Soma no total geral de itens.
-            $totalItens += $quantidadeFinal;
-
-            // Soma no valor total geral do estoque.
-            $valorTotalEstoque += $valorProduto;
-
-            $conteudo .= "
-                <div class='card mt-4 resultado-card'>
-                    <div class='card-header resultado-header'>
-                        {$produto->getNome()}
-                    </div>
-                    <div class='card-body'>
-                        <p class='texto-roxo'><strong>Quantidade de entrada:</strong> {$entrada}</p>
-                        <p class='texto-roxo'><strong>Quantidade de saida:</strong> {$saida}</p>
-                        <p class='texto-roxo'><strong>Preco unitario:</strong> R$ " . number_format($produto->getPreco(), 2, ',', '.') . "</p>
-                        <hr>
-                        <p class='texto-roxo'><strong>Quantidade em estoque:</strong> {$quantidadeFinal}</p>
-                        <p class='texto-lilas'><strong>Valor total em estoque:</strong> R$ " . number_format($valorProduto, 2, ',', '.') . "</p>
-                    </div>
-                </div>";
-        }
-
-        $conteudo .= "
-            <div class='card mt-4 resultado-destaque'>
-                <div class='card-body text-center'>
-                    <h3 class='mb-3'>Resumo do Estoque</h3>
-                    <div class='row justify-content-center g-3 mt-1'>
-                        <div class='col-md-4'>
-                            <div class='p-3'>
-                                <h4>Total de itens</h4>
-                                <h2>{$totalItens}</h2>
-                            </div>
-                        </div>
-                        <div class='col-md-4'>
-                            <div class='p-3'>
-                                <h4>Valor total do estoque</h4>
-                                <h2>R$ " . number_format($valorTotalEstoque, 2, ',', '.') . "</h2>
-                            </div>
-                        </div>
-                    </div>
-=======
-// Rota para adicionar produtos no estoque
+// Rota principal dos produtos:
+// cria o vetor de objetos, calcula estoque e mostra o resultado
 $app->get(
     '/produtos/adicionar', 
     
@@ -391,113 +289,107 @@ $app->get(
     // Le os dados enviados pelo formulario
     $dados = $request->getQueryParams();
 
-    $produtos = [];
-
     $nomes = $dados['nome'] ?? [];
     $precos = $dados['preco'] ?? [];
-    $adicionar = $dados['adicionar'] ?? [];
+    $entradas = $dados['entrada'] ?? [];
+    $saidas = $dados['saida'] ?? [];
+    $produtos = [];
 
-    // Percorre os 5 produtos enviados para adicionar ao estoque
+    // Percorre os 5 produtos e guarda cada objeto em um vetor
     for ($i = 1; $i <= 5; $i++) {
         $nome = $nomes[$i] ?? '';
         $preco = (float) ($precos[$i] ?? 0);
-        $add = (int) ($adicionar[$i] ?? 0);
+        $entrada = (int) ($entradas[$i] ?? 0);
+        $saida = (int) ($saidas[$i] ?? 0);
 
-        if ($nome !== '' && $preco > 0 && $add >= 0) {
-            // Cria um objeto para cada produto
+        if ($nome !== '' && $preco > 0 && $entrada >= 0 && $saida >= 0) {
+            // Cria um objeto para cada produto e ajusta o estoque
             $produto = new Produtos();
             $produto->setNome($nome);
             $produto->setPreco($preco);
-            $produto->setQuantidadeEstoque(0);
+            $produto->setQtdEstoque(0);
+            $produto->adicionarItens($entrada);
+            $produto->removerItens($saida);
 
-            // Adiciona a quantidade informada de uma vez.
-            $produto->adicionarItens((int) $add);
-
-            $produtos[] = [
-                'nome' => $nome,
-                'preco' => $preco,
-                'adicionou' => $add,
-                'quantidade_final' => $produto->getQuantidadeEstoque()
-            ];
+            $produtos[] = $produto;
         }
     }
 
     $conteudo = '';
     $estoqueTotal = 0;
+    $totalItensEstoque = 0;
+    $camposOcultos = montarCamposOcultosProdutos($produtos);
 
-    // Monta os cards de cada produto no resultado
-    foreach ($produtos as $p) {
-        $valorTotal = $p['preco'] * $p['quantidade_final'];
+    if (count($produtos) === 0) {
+        $conteudo = "<p class='texto-erro'><strong>Erro:</strong> Informe pelo menos um produto valido.</p>";
+    }
 
+    // Monta os cards usando o vetor de objetos Produtos
+    foreach ($produtos as $produto) {
+        $nome = $produto->getNome();
+        $preco = $produto->getPreco();
+        $qtdEstoque = $produto->getQtdEstoque();
+        $valorTotal = $produto->calcularValorTotal();
+
+        $totalItensEstoque += $qtdEstoque;
+        $estoqueTotal += $valorTotal;
         $conteudo .= "
             <div class='card mt-4 resultado-card'>
                 <div class='card-header resultado-header'>
-                    {$p['nome']}
+                    {$nome}
                 </div>
                 <div class='card-body'>
-                    <p class='texto-roxo'><strong>Preco unitario:</strong> R$ " . number_format($p['preco'], 2, ',', '.') . "</p>";
-
-        if ($p['adicionou'] > 0) {
-            $conteudo .= "<p class='texto-roxo'><strong>Adicionou ao estoque:</strong> {$p['adicionou']} itens</p>";
-        }
-
-        $estoqueTotal += $valorTotal;
-
-        $conteudo .= "
-                    <hr>
-                    <p class='texto-roxo'><strong>Quantidade final em estoque:</strong> {$p['quantidade_final']}</p>
+                    <p class='texto-roxo'><strong>Nome do produto:</strong> {$nome}</p>
+                    <p class='texto-roxo'><strong>Preco:</strong> R$ " . number_format($preco, 2, ',', '.') . "</p>
+                    <p class='texto-roxo'><strong>Quantidade em estoque:</strong> {$qtdEstoque}</p>
                     <p class='texto-lilas'><strong>Valor total em estoque:</strong> R$ " . number_format($valorTotal, 2, ',', '.') . "</p>
->>>>>>> 6bccbf6ad4090c5afaaf3b18481c372efc75e89e
                 </div>
             </div>";
     }
 
-<<<<<<< HEAD
-    // Monta a pagina HTML final do estoque.
-=======
-    // Card final com o valor total do estoque
-    $conteudo .= "
+    // Card final com o total de itens e valor total do estoque
+    if (count($produtos) > 0) {
+        $conteudo .= "
         <div class='card mt-4 resultado-destaque'>
             <div class='card-body text-center'>
+                <h4>Total de Itens no Estoque</h4>
+                <h2>{$totalItensEstoque}</h2>
+                <hr>
                 <h4>Valor Total do Estoque Inteiro</h4>
                 <h2>R$ " . number_format($estoqueTotal, 2, ',', '.') . "</h2>
             </div>
+        </div>
+        <div class='card mt-4 resultado-card'>
+            <div class='card-header resultado-header'>
+                Etapa de Remocao do Estoque
+            </div>
+            <div class='card-body text-center'>
+                <p class='texto-roxo mb-3'>Os produtos do vetor ja estao carregados. Agora voce pode abrir a tela e remover sem preencher tudo de novo.</p>
+                <form action='/produtos/remover/form' method='get'>
+                    {$camposOcultos}
+                    <button class='btn btn-voltar'>Abrir Tela de Remocao</button>
+                </form>
+            </div>
         </div>";
+    }
 
     // Monta a pagina HTML de resposta
->>>>>>> 6bccbf6ad4090c5afaaf3b18481c372efc75e89e
     $resposta = "<!DOCTYPE html>
             <html lang='pt-BR'>
             <head>
                 <meta charset='UTF-8'>
                 <link href='https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css' rel='stylesheet'>
                 <link rel='stylesheet' href='/style.css'>
-<<<<<<< HEAD
                 <title>Resultado dos Produtos</title>
-=======
-                <title>Adicionar Produtos</title>
->>>>>>> 6bccbf6ad4090c5afaaf3b18481c372efc75e89e
             </head>
             <body class='pagina-resultado'>
                 <div class='container py-5'>
                     <div class='row justify-content-center'>
                         <div class='col-md-10'>
-<<<<<<< HEAD
-                            <h2 class='mt-4 text-center resultado-titulo'>Controle de Estoque</h2>
-                            {$conteudo}
-                            <div class='d-grid gap-2 mt-4'>
-                                " . ($camposRemocao != '' ? "
-                                <form action='/produtos/remover-formulario' method='get'>
-                                    {$camposRemocao}
-                                    <button type='submit' class='btn btn-roxo'>Remover Itens do Estoque</button>
-                                </form>" : '') . "
-                                <a href='/Produtos.html' class='btn btn-voltar'>Voltar</a>
-=======
-                            <h2 class='mt-4 text-center resultado-titulo'>Adicao no Estoque</h2>
+                            <h2 class='mt-4 text-center resultado-titulo'>Resultado dos Produtos</h2>
                             {$conteudo}
                             <div class='text-center mt-3'>
                                 <a href='/ProdutosAdicionar.html' class='btn btn-roxo'>Voltar</a>
->>>>>>> 6bccbf6ad4090c5afaaf3b18481c372efc75e89e
                             </div>
                         </div>
                     </div>
@@ -509,99 +401,75 @@ $app->get(
     return $response;
 });
 
-<<<<<<< HEAD
-// Rota que abre a segunda tela de produtos.
-// Nela os dados do array ja chegam preenchidos e o usuario digita so
-// a quantidade que deseja remover de cada item.
+// Rota da tela de remocao:
+// recebe o mesmo vetor de produtos e ja monta nome, preco e estoque preenchidos
 $app->get(
-    '/produtos/remover-formulario',
-
-    function (Request $request, Response $response) {
-    // Le os dados recebidos da pagina de estoque.
-=======
-// Rota para remover produtos do estoque
-$app->get(
-    '/produtos/remover', 
+    '/produtos/remover/form',
     
     function (Request $request, Response $response) {
-    // Le os dados enviados pelo formulario
->>>>>>> 6bccbf6ad4090c5afaaf3b18481c372efc75e89e
     $dados = $request->getQueryParams();
+
     $nomes = $dados['nome'] ?? [];
     $precos = $dados['preco'] ?? [];
     $estoques = $dados['estoque'] ?? [];
-<<<<<<< HEAD
+    $produtos = montarVetorProdutos($nomes, $precos, $estoques);
 
-    // Aqui sera montado o formulario ja preenchido para remocao.
-    $linhas = '';
+    $conteudo = "<form action='/produtos/remover' method='get'>";
 
-    // Percorre os produtos recebidos e monta as linhas da tela de remocao.
-    for ($i = 1; $i <= 5; $i++) {
-        $nome = trim($nomes[$i] ?? '');
-        $preco = $precos[$i] ?? 0;
-        $estoque = $estoques[$i] ?? 0;
-
-        
-
-        // Mostra nome, preco e estoque bloqueados e deixa so o campo remover livre.
-        $linhas .= "
-            <div class='row mb-3 produto-bloco'>
-                <div class='col-md-12'>
-                    <h5 class='produto-titulo'>{$nome}</h5>
-                </div>
-                <div class='col-md-4 mb-2'>
-                    <input type='text' class='form-control' value='{$nome}' readonly>
-                    <input type='hidden' name='nome[{$i}]' value='{$nome}'>
-                </div>
-                <div class='col-md-3 mb-2'>
-                    <input type='text' class='form-control' value='R$ " . number_format($preco, 2, ',', '.') . "' readonly>
-                    <input type='hidden' name='preco[{$i}]' value='{$preco}'>
-                </div>
-                <div class='col-md-3 mb-2'>
-                    <input type='text' class='form-control' value='{$estoque} em estoque' readonly>
-                    <input type='hidden' name='estoque[{$i}]' value='{$estoque}'>
-                </div>
-                <div class='col-md-2 mb-2'>
-                    <input type='text' name='remover[{$i}]' class='form-control' placeholder='Remover'>
-                </div>
-            </div>";
-    }
-
-    if ($linhas == '') {
-        $linhas = "
-            <p class='texto-erro'><strong>Erro:</strong> Nenhum produto foi enviado para a pagina de remocao.</p>";
+    if (count($produtos) === 0) {
+        $conteudo = "<p class='texto-erro'><strong>Erro:</strong> Nenhum produto encontrado para remover.</p>";
     } else {
-        $linhas = "
-            <p class='text-center texto-lilas mb-4'>Os produtos ja vieram preenchidos. Agora voce so informa a quantidade que deseja remover.</p>
-            <form action='/produtos/remover' method='get'>
-                {$linhas}
-                <div class='d-grid gap-2 mt-4'>
-                    <button class='btn btn-roxo'>Confirmar Remocao</button>
-                    <a href='/Produtos.html' class='btn btn-voltar'>Voltar</a>
-                </div>
-            </form>";
+        foreach ($produtos as $indice => $produto) {
+            $nome = $produto->getNome();
+            $preco = $produto->getPreco();
+            $estoque = $produto->getQtdEstoque();
+            $posicao = $indice + 1;
+
+            $conteudo .= "
+                <div class='row mb-3 produto-bloco'>
+                    <div class='col-md-12'>
+                        <h5 class='produto-titulo'>{$nome}</h5>
+                    </div>
+                    <div class='col-md-4 mb-2'>
+                        <input type='text' name='nome[{$posicao}]' class='form-control' value='{$nome}' readonly>
+                    </div>
+                    <div class='col-md-2 mb-2'>
+                        <input type='text' name='preco[{$posicao}]' class='form-control' value='{$preco}' readonly>
+                    </div>
+                    <div class='col-md-2 mb-2'>
+                        <input type='text' name='estoque[{$posicao}]' class='form-control' value='{$estoque}' readonly>
+                    </div>
+                    <div class='col-md-2 mb-2'>
+                        <input type='text' name='remover[{$posicao}]' class='form-control' placeholder='Remover'>
+                    </div>
+                </div>";
+        }
+
+        $conteudo .= "
+            <div class='d-grid gap-2 mt-4'>
+                <button class='btn btn-roxo'>Atualizar Estoque</button>
+                <a href='/ProdutosAdicionar.html' class='btn btn-voltar'>Voltar</a>
+            </div>
+        </form>";
     }
 
-    // Monta a pagina HTML onde o usuario informa quanto deseja remover.
     $resposta = "<!DOCTYPE html>
             <html lang='pt-BR'>
             <head>
                 <meta charset='UTF-8'>
                 <link href='https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css' rel='stylesheet'>
                 <link rel='stylesheet' href='/style.css'>
-                <title>Remover Itens</title>
+                <title>Tela de Remocao dos Produtos</title>
             </head>
             <body class='pagina-formulario'>
-                <div class='container py-5'>
-                    <div class='row justify-content-center'>
-                        <div class='col-md-10'>
-                            <div class='card form-card form-card-largo'>
-                                <div class='form-header'>Sistema de Exercicios</div>
-                                <div class='card-body'>
-                                    <h2 class='text-center mb-4 form-title'>Remover Itens do Estoque</h2>
-                                    {$linhas}
-                                </div>
-                            </div>
+                <div class='container py-4'>
+                    <div class='card form-card form-card-largo'>
+                        <div class='form-header'>
+                            Sistema de Exercicios
+                        </div>
+                        <div class='card-body'>
+                            <h4 class='text-center mb-4 form-title'>Tela de Remocao dos Produtos</h4>
+                            {$conteudo}
                         </div>
                     </div>
                 </div>
@@ -612,202 +480,99 @@ $app->get(
     return $response;
 });
 
-// Rota final da remocao.
-// Ela recebe a quantidade a remover, atualiza o estoque de cada produto
-// e mostra o novo resultado com total de itens e valor total do estoque.
+// Rota final da remocao:
+// atualiza o vetor depois da saida informada e mostra o novo estoque
 $app->get(
     '/produtos/remover',
-
+    
     function (Request $request, Response $response) {
-    // Le os dados enviados pela tela de remocao.
     $dados = $request->getQueryParams();
+
     $nomes = $dados['nome'] ?? [];
     $precos = $dados['preco'] ?? [];
     $estoques = $dados['estoque'] ?? [];
-    $remocoes = $dados['remover'] ?? [];
-
-    // Variaveis usadas para montar o resultado final apos remover itens.
-    $conteudo = '';
-    $totalItens = 0;
-    $valorTotalEstoque = 0;
-
-    // Percorre os produtos para aplicar a quantidade removida em cada um.
-    for ($i = 1; $i <= 5; $i++) {
-        $nome = trim((string) ($nomes[$i] ?? ''));
-        $preco = (float) ($precos[$i] ?? 0);
-        $estoque = (int) ($estoques[$i] ?? 0);
-        $removerOriginal = trim((string) ($remocoes[$i] ?? '0'));
-
-
-        if ($removerOriginal != '' && preg_match('/^[0-9]+$/', $removerOriginal) != 1) {
-            $conteudo .= "
-                <div class='card mt-4 resultado-card'>
-                    <div class='card-header resultado-header'>{$nome}</div>
-                    <div class='card-body'>
-                        <p class='texto-erro'><strong>Erro:</strong> A quantidade para remover deve ser um numero inteiro.</p>
-                    </div>
-                </div>";
-            continue;
-        }
-
-        // Converte a quantidade digitada para inteiro.
-        $quantidadeRemover = (int) $removerOriginal;
-
-        // Recria o produto com o estoque atual para aplicar a remocao.
-        $produto = new Produtos();
-        $produto->setNome($nome);
-        $produto->setPreco($preco);
-        $produto->setQuantidadeEstoque($estoque);
-
-        // Remove a quantidade solicitada.
-        $produto->removerItens($quantidadeRemover);
-
-        // Lê a quantidade final depois da remocao.
-        $quantidadeFinal = $produto->getQuantidadeEstoque();
-
-        // Calcula quanto esse produto ainda vale no estoque.
-        $valorProduto = $produto->calcularValorTotal();
-        $totalItens += $quantidadeFinal;
-        $valorTotalEstoque += $valorProduto;
-
-        // Monta o card com os dados do produto depois da remocao.
-        $conteudo .= "
-            <div class='card mt-4 resultado-card'>
-                <div class='card-header resultado-header'>{$produto->getNome()}</div>
-                <div class='card-body'>
-                    <p class='texto-roxo'><strong>Quantidade antes:</strong> {$estoque}</p>
-                    <p class='texto-roxo'><strong>Quantidade removida:</strong> {$quantidadeRemover}</p>
-                    <p class='texto-roxo'><strong>Preco unitario:</strong> R$ " . number_format($produto->getPreco(), 2, ',', '.') . "</p>
-                    <p class='texto-roxo'><strong>Quantidade em estoque:</strong> {$quantidadeFinal}</p>
-                    <p class='texto-lilas'><strong>Valor total em estoque:</strong> R$ " . number_format($valorProduto, 2, ',', '.') . "</p>
-=======
     $remover = $dados['remover'] ?? [];
-    $produtos = [];
+    $produtos = montarVetorProdutos($nomes, $precos, $estoques);
+
+    $conteudo = '';
     $estoqueTotal = 0;
+    $totalItensEstoque = 0;
+    $camposOcultos = '';
 
-    for ($i = 1; $i <= 5; $i++) {
-        $nome = $nomes[$i] ?? '';
-        $preco = (float) ($precos[$i] ?? 0);
-        $estoqueAtual = (int) ($estoques[$i] ?? 0);
-        $quantidadeRemover = (int) ($remover[$i] ?? 0);
-
-        if ($nome === '' || $preco <= 0 || $estoqueAtual < 0 || $quantidadeRemover < 0) {
-            continue;
-        }
-
-        $produto = new Produtos();
-        $produto->setNome($nome);
-        $produto->setPreco($preco);
-        $produto->setQuantidadeEstoque($estoqueAtual);
-        $quantidadeFinal = $produto->removerItens($quantidadeRemover);
-        $valorTotal = $produto->calcularValorTotal();
-        $estoqueTotal += $valorTotal;
-
-        $produtos[] = [
-            'nome' => $nome,
-            'preco' => $preco,
-            'estoque_atual' => $estoqueAtual,
-            'removeu' => $quantidadeRemover,
-            'quantidade_final' => $quantidadeFinal,
-            'valor_total' => $valorTotal
-        ];
+    if (count($produtos) === 0) {
+        $conteudo = "<p class='texto-erro'><strong>Erro:</strong> Nenhum produto valido foi informado.</p>";
     }
 
-    $conteudo = '';
+    foreach ($produtos as $indice => $produto) {
+        $saida = (int) ($remover[$indice + 1] ?? 0);
+        if ($saida > 0) {
+            $produto->removerItens($saida);
+        }
 
-    // Monta os cards de cada produto no resultado
-    foreach ($produtos as $p) {
+        $nome = $produto->getNome();
+        $preco = $produto->getPreco();
+        $qtdEstoque = $produto->getQtdEstoque();
+        $valorTotal = $produto->calcularValorTotal();
+        $posicao = $indice + 1;
+
+        $camposOcultos .= "
+            <input type='hidden' name='nome[{$posicao}]' value='{$nome}'>
+            <input type='hidden' name='preco[{$posicao}]' value='{$preco}'>
+            <input type='hidden' name='estoque[{$posicao}]' value='{$qtdEstoque}'>";
+
+        $totalItensEstoque += $qtdEstoque;
+        $estoqueTotal += $valorTotal;
+
         $conteudo .= "
             <div class='card mt-4 resultado-card'>
                 <div class='card-header resultado-header'>
-                    {$p['nome']}
+                    {$nome}
                 </div>
                 <div class='card-body'>
-                    <p class='texto-roxo'><strong>Preco unitario:</strong> R$ " . number_format((float) $p['preco'], 2, ',', '.') . "</p>
-                    <p class='texto-roxo'><strong>Estoque atual:</strong> {$p['estoque_atual']}</p>";
-
-        if ($p['removeu'] > 0) {
-            $conteudo .= "<p class='texto-lilas'><strong>Removeu do estoque:</strong> {$p['removeu']} itens</p>";
-        }
-
-        $conteudo .= "
-                    <hr>
-                    <p class='texto-roxo'><strong>Quantidade final em estoque:</strong> {$p['quantidade_final']}</p>
-                    <p class='texto-lilas'><strong>Valor total em estoque:</strong> R$ " . number_format($p['valor_total'], 2, ',', '.') . "</p>
->>>>>>> 6bccbf6ad4090c5afaaf3b18481c372efc75e89e
+                    <p class='texto-roxo'><strong>Nome do produto:</strong> {$nome}</p>
+                    <p class='texto-roxo'><strong>Preco:</strong> R$ " . number_format($preco, 2, ',', '.') . "</p>
+                    <p class='texto-roxo'><strong>Quantidade em estoque:</strong> {$qtdEstoque}</p>
+                    <p class='texto-lilas'><strong>Valor total em estoque:</strong> R$ " . number_format($valorTotal, 2, ',', '.') . "</p>
                 </div>
             </div>";
     }
 
-<<<<<<< HEAD
-    if ($conteudo == '') {
-        $conteudo = "
-            <div class='card mt-4 resultado-card'>
-                <div class='card-header resultado-header'>Nenhum produto processado</div>
-                <div class='card-body'>
-                    <p class='texto-erro'><strong>Erro:</strong> Nao foi possivel processar a remocao.</p>
-                </div>
-            </div>";
-    } else {
+    if (count($produtos) > 0) {
+        $camposOcultos = montarCamposOcultosProdutos($produtos);
         $conteudo .= "
-            <div class='card mt-4 resultado-destaque'>
-                <div class='card-body text-center'>
-                    <h3 class='mb-3'>Estoque Apos a Remocao</h3>
-                    <div class='row justify-content-center g-3 mt-1'>
-                        <div class='col-md-4'>
-                            <div class='p-3'>
-                                <h4>Total de itens</h4>
-                                <h2>{$totalItens}</h2>
-                            </div>
-                        </div>
-                        <div class='col-md-4'>
-                            <div class='p-3'>
-                                <h4>Valor total do estoque</h4>
-                                <h2>R$ " . number_format($valorTotalEstoque, 2, ',', '.') . "</h2>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>";
-    }
-
-    // Monta a pagina HTML final com o resultado da remocao.
-=======
-    $conteudo .= "
         <div class='card mt-4 resultado-destaque'>
             <div class='card-body text-center'>
-                <h4>Valor Total do Estoque Restante</h4>
+                <h4>Total de Itens no Estoque</h4>
+                <h2>{$totalItensEstoque}</h2>
+                <hr>
+                <h4>Valor Total do Estoque Inteiro</h4>
                 <h2>R$ " . number_format($estoqueTotal, 2, ',', '.') . "</h2>
             </div>
+        </div>
+        <div class='text-center mt-4'>
+            <form action='/produtos/remover/form' method='get'>
+                {$camposOcultos}
+                <button class='btn btn-voltar'>Remover Mais</button>
+            </form>
         </div>";
+    }
 
-    // Monta a pagina HTML de resposta
->>>>>>> 6bccbf6ad4090c5afaaf3b18481c372efc75e89e
     $resposta = "<!DOCTYPE html>
             <html lang='pt-BR'>
             <head>
                 <meta charset='UTF-8'>
                 <link href='https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css' rel='stylesheet'>
                 <link rel='stylesheet' href='/style.css'>
-<<<<<<< HEAD
-                <title>Resultado da Remocao</title>
-=======
-                <title>Remover Produtos</title>
->>>>>>> 6bccbf6ad4090c5afaaf3b18481c372efc75e89e
+                <title>Resultado dos Produtos</title>
             </head>
             <body class='pagina-resultado'>
                 <div class='container py-5'>
                     <div class='row justify-content-center'>
                         <div class='col-md-10'>
-                            <h2 class='mt-4 text-center resultado-titulo'>Remocao do Estoque</h2>
+                            <h2 class='mt-4 text-center resultado-titulo'>Estoque Atualizado</h2>
                             {$conteudo}
-<<<<<<< HEAD
-                            <div class='d-grid gap-2 mt-4'>
-                                <a href='/Produtos.html' class='btn btn-voltar'>Voltar para Produtos</a>
-=======
                             <div class='text-center mt-3'>
-                                <a href='/ProdutosRemover.html' class='btn btn-roxo'>Voltar</a>
->>>>>>> 6bccbf6ad4090c5afaaf3b18481c372efc75e89e
+                                <a href='/ProdutosAdicionar.html' class='btn btn-roxo'>Voltar</a>
                             </div>
                         </div>
                     </div>
@@ -832,11 +597,7 @@ $app->get(
     $ladoC = $dados['ladoC'] ?? 0;
 
     // Valida os dados recebidos
-<<<<<<< HEAD
     if ($ladoA == 0.0 || $ladoB == 0.0 || $ladoC == 0.0) {
-=======
-    if ($ladoA === 0.0 || $ladoB === 0.0 || $ladoC === 0.0) {
->>>>>>> 6bccbf6ad4090c5afaaf3b18481c372efc75e89e
         $conteudo = "<p class='texto-erro'><strong>Erro:</strong> Informe os tres lados do triangulo.</p>";
     } else {
         if ($ladoA <= 0 || $ladoB <= 0 || $ladoC <= 0) {
