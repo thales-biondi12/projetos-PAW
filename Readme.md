@@ -172,8 +172,8 @@ Este projeto foi desenvolvido com foco em praticar:
 
 ## Autor
 ***Thales Aandrade Biondi***
-***Italo Garavelo***
-***Pedro Antoniassi***
-2H colegios UNIVAP-centro
+,***Italo Garavelo***
+,***Pedro Antoniassi***
+-2H colegios UNIVAP-centro
 
 Projeto desenvolvido para fins de estudo no 1º bimestre.
