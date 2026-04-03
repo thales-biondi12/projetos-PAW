@@ -171,6 +171,9 @@ Este projeto foi desenvolvido com foco em praticar:
 - integração entre formulário, regra de negócio e resposta HTML
 
 ## Autor
-Thales Aandrade Biondi 2H colegios UNIVAP-centro
+***Thales Aandrade Biondi***
+***Italo Garavelo***
+***Pedro Antoniassi***
+2H colegios UNIVAP-centro
 
 Projeto desenvolvido para fins de estudo no 1º bimestre.
