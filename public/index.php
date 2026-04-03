@@ -13,49 +13,66 @@ use src\Produtos\Produtos;
 
 $app = AppFactory::create();
 
+// Função responsável por transformar arrays (nomes, preços e estoques)
+// em um array de objetos da classe Produtos
 function montarVetorProdutos(array $nomes, array $precos, array $estoques): array
 {
     $produtos = [];
 
+    // Percorre até 5 posições dos arrays
     for ($i = 1; $i <= 5; $i++) {
+
+        // Pega os dados de cada posição (com valores padrão se não existir)
         $nome = $nomes[$i] ?? '';
         $preco = $precos[$i] ?? 0;
         $estoque = $estoques[$i] ?? 0;
 
+        // Só cria o produto se os dados forem válidos
         if ($nome !== '' && $preco > 0 && $estoque >= 0) {
+
+            // Cria um objeto Produto e define seus atributos
             $produto = new Produtos();
             $produto->setNome($nome);
             $produto->setPreco($preco);
             $produto->setQtdEstoque($estoque);
+
+            // Adiciona o produto ao array final
             $produtos[] = $produto;
         }
     }
 
+    // Retorna o array com todos os produtos válidos
     return $produtos;
 }
 
+
+// Função responsável por gerar inputs ocultos (hidden)
+// a partir do array de objetos Produtos
 function montarCamposOcultosProdutos(array $produtos): string
 {
     $camposOcultos = '';
 
+    // Percorre todos os produtos criados
     foreach ($produtos as $indice => $produto) {
+
+        // Define a posição (começando em 1)
         $posicao = $indice + 1;
+
+        // Obtém os dados do objeto
         $nome = $produto->getNome();
         $preco = $produto->getPreco();
         $qtdEstoque = $produto->getQtdEstoque();
 
+        // Monta inputs hidden para enviar os dados no formulário
         $camposOcultos .= "
             <input type='hidden' name='nome[{$posicao}]' value='{$nome}'>
             <input type='hidden' name='preco[{$posicao}]' value='{$preco}'>
             <input type='hidden' name='estoque[{$posicao}]' value='{$qtdEstoque}'>";
     }
 
+    // Retorna todos os campos ocultos em formato HTML
     return $camposOcultos;
 }
-
-// =========================
-// BLOCO DE PRODUTOS
-// =========================
 
 // Rota para calcular IMC
 $app->get(
